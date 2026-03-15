@@ -11,7 +11,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Project {
+public class Projects {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -19,7 +19,7 @@ public class Project {
     private String description;
 
     @ManyToMany
-    @JoinTable(name = "project_users",
+    @JoinTable(name = "projects_users",
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<Users> users;

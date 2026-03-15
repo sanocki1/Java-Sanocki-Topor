@@ -20,5 +20,5 @@ public class Users {
     private String username;
 
     @ManyToMany(mappedBy = "users")
-    private Set<Project> projects;
+    private Set<Projects> projects;
 }
