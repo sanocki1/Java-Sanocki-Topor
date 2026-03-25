@@ -13,13 +13,18 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 public class Tasks {
+    public enum TaskType {
+        LOW_PRIORITY,
+        MEDIUM_PRIORITY,
+        HIGH_PRIORITY
+    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Column(nullable = false, unique = true, columnDefinition = "TEXT")
     private String title;
     @Enumerated (EnumType.STRING)
-    private String task_type;
+    private TaskType task_type;
     @ManyToOne
     @JoinColumn(
             name = "project_id",
