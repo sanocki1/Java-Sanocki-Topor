@@ -20,7 +20,7 @@ public class Tasks {
     }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     @Column(nullable = false, unique = true, columnDefinition = "TEXT")
     private String title;
     @Enumerated (EnumType.STRING)
