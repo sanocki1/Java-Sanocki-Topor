@@ -1,4 +1,11 @@
 package com.example.projectmanagerapp.priority;
 
-public class HighPriority {
+import com.example.projectmanagerapp.entity.Tasks;
+
+public class HighPriority implements PriorityLevel {
+
+    @Override
+    public Tasks.TaskType getPriority() {
+        return Tasks.TaskType.HIGH_PRIORITY;
+    }
 }
