@@ -3,6 +3,7 @@ package com.example.projectmanagerapp.controller;
 import com.example.projectmanagerapp.entity.Task;
 import com.example.projectmanagerapp.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,6 +29,21 @@ public class TaskController {
         return taskService.getAllTasks();
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Retrieve task by id", description = "Returns a single task by id from a database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "404", description = "Task not found", content = @Content)
+    })
+    public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
+        try {
+            taskService.getTaskById(id);
+            return new ResponseEntity<>(taskService.getTaskById(id), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PostMapping("/create")
     @Operation(summary = "Create a new task", description = "Adds a new task to the database")
     @ApiResponses(value = {
@@ -36,5 +52,35 @@ public class TaskController {
     public ResponseEntity<Task> addTask(@RequestBody Task task) {
         Task createdTask = taskService.createTask(task);
         return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/update")
+    @Operation(summary = "Update an existing task", description = "Updates an existing task in the database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful update"),
+            @ApiResponse(responseCode = "404", description = "Task not found")
+    })
+    public ResponseEntity<Task> updateTask(@RequestBody Task task) {
+        try {
+            Task updatedTask = taskService.updateTask(task);
+            return new ResponseEntity<>(updatedTask, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @Operation(summary = "Delete a task", description = "Deletes a task from the database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Task deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Task not found")
+    })
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+        try {
+            taskService.deleteTask(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

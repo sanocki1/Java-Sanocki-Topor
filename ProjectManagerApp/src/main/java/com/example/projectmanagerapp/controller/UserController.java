@@ -3,6 +3,7 @@ package com.example.projectmanagerapp.controller;
 import com.example.projectmanagerapp.entity.User;
 import com.example.projectmanagerapp.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,13 +30,56 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Retrieve user by id", description = "Returns a single user by id from a database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
+    })
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        try {
+            userService.getUserById(id);
+            return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PostMapping("/create")
     @Operation(summary = "Create a new user", description = "Adds a new user to the database")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Successful creation")
-    })
+    @ApiResponse(responseCode = "201", description = "Successful creation")
     public ResponseEntity<User> addUser(@RequestBody User user) {
         User createdUser = userService.createUser(user);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/update")
+    @Operation(summary = "Update an existing user", description = "Updates an existing user in the database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful update"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public ResponseEntity<User> updateUser(@RequestBody User user) {
+        try {
+            User updatedUser = userService.updateUser(user);
+            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @Operation(summary = "Delete a user", description = "Deletes a user from the database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "User deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        try {
+            userService.deleteUser(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }
