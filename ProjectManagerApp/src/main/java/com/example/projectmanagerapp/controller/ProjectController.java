@@ -1,11 +1,10 @@
 package com.example.projectmanagerapp.controller;
 
 import com.example.projectmanagerapp.entity.Project;
-import com.example.projectmanagerapp.entity.User;
-import com.example.projectmanagerapp.repository.ProjectRepository;
+import com.example.projectmanagerapp.entity.Project;
 import com.example.projectmanagerapp.service.ProjectService;
-import com.example.projectmanagerapp.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,6 +31,21 @@ public class ProjectController {
         return projectService.getAllProjects();
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Retrieve project by id", description = "Returns a single project by id from a database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "404", description = "Project not found", content = @Content)
+    })
+    public ResponseEntity<Project> getProjectById(@PathVariable Long id) {
+        try {
+            projectService.getProjectById(id);
+            return new ResponseEntity<>(projectService.getProjectById(id), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PostMapping("/create")
     @Operation(summary = "Create a new project", description = "Adds a new project to the database")
     @ApiResponses(value = {
@@ -40,5 +54,35 @@ public class ProjectController {
     public ResponseEntity<Project> addProject(@RequestBody Project project) {
         Project createdProject = projectService.createProject(project);
         return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/update")
+    @Operation(summary = "Update an existing project", description = "Updates an existing project in the database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful update"),
+            @ApiResponse(responseCode = "404", description = "Project not found")
+    })
+    public ResponseEntity<Project> updateProject(@RequestBody Project project) {
+        try {
+            Project updatedProject = projectService.updateProject(project);
+            return new ResponseEntity<>(updatedProject, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @Operation(summary = "Delete a project", description = "Deletes a project from the database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Project deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Project not found")
+    })
+    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
+        try {
+            projectService.deleteProject(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }
