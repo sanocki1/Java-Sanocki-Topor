@@ -1,11 +1,11 @@
 package com.example.projectmanagerapp.priority;
 
-import com.example.projectmanagerapp.entity.Tasks;
+import com.example.projectmanagerapp.entity.Task;
 
 public class MediumPriority implements PriorityLevel {
 
     @Override
-    public Tasks.TaskType getPriority() {
-        return Tasks.TaskType.MEDIUM_PRIORITY;
+    public Task.TaskType getPriority() {
+        return Task.TaskType.MEDIUM_PRIORITY;
     }
 }

@@ -1,11 +1,13 @@
 package com.example.projectmanagerapp.controller;
 
-import com.example.projectmanagerapp.entity.Projects;
-import com.example.projectmanagerapp.entity.Tasks;
-import com.example.projectmanagerapp.repository.TaskRepository;
+import com.example.projectmanagerapp.entity.Task;
+import com.example.projectmanagerapp.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,23 +16,25 @@ import java.util.List;
 @RequestMapping("/api/tasks")
 @Tag(name = "Task API", description = "API for managing tasks")
 public class TaskController {
+    private final TaskService taskService;
 
-    private final TaskRepository taskRepository;;
-
-    public TaskController(TaskRepository taskRepository) {
-        this.taskRepository = taskRepository;
+    public TaskController(TaskService taskService) {
+        this.taskService = taskService;
     }
 
-    @GetMapping
-    @Operation(summary = "Get all tasks")
-    public List<Tasks> getAllTasks() {
-        return taskRepository.findAll();
+    @GetMapping("/all")
+    @Operation(summary = "Retrieve all tasks", description = "Returns a list of all tasks from a database")
+    public List<Task> getTasks() {
+        return taskService.getAllTasks();
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Create a new task")
-    public Tasks createTask(@RequestBody Tasks task) {
-        return taskRepository.save(task);
+    @PostMapping("/create")
+    @Operation(summary = "Create a new task", description = "Adds a new task to the database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Successful creation")
+    })
+    public ResponseEntity<Task> addTask(@RequestBody Task task) {
+        Task createdTask = taskService.createTask(task);
+        return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
     }
 }

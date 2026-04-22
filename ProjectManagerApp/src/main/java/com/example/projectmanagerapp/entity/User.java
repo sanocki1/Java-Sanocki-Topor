@@ -11,7 +11,7 @@ import java.util.Set;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class Users {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,5 +20,5 @@ public class Users {
     private String username;
 
     @ManyToMany(mappedBy = "users")
-    private Set<Projects> projects;
+    private Set<Project> projects;
 }
