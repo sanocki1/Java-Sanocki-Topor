@@ -1,10 +1,13 @@
 package com.example.projectmanagerapp.controller;
 
-import com.example.projectmanagerapp.entity.Users;
-import com.example.projectmanagerapp.repository.UserRepository;
+import com.example.projectmanagerapp.entity.User;
+import com.example.projectmanagerapp.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,23 +17,25 @@ import java.util.List;
 @Tag(name = "User API", description = "API for managing users")
 public class UserController {
 
-    private final UserRepository userRepository;;
+    private final UserService userService;
 
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
-    @GetMapping
-    @Operation(summary = "Get all users")
-    public List<Users> getAllUsers() {
-        return userRepository.findAll();
+    @GetMapping("/all")
+    @Operation(summary = "Retrieve all users", description = "Returns a list of all users from a database")
+    public List<User> getUsers() {
+        return userService.getAllUsers();
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Create a new user")
-    public Users createUser(
-            @RequestBody Users user) {
-        return userRepository.save(user);
+    @PostMapping("/create")
+    @Operation(summary = "Create a new user", description = "Adds a new user to the database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Successful creation")
+    })
+    public ResponseEntity<User> addUser(@RequestBody User user) {
+        User createdUser = userService.createUser(user);
+        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 }

@@ -3,16 +3,13 @@ package com.example.projectmanagerapp.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-
-import java.util.Set;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-public class Tasks {
+public class Task {
     public enum TaskType {
         LOW_PRIORITY,
         MEDIUM_PRIORITY,
@@ -34,12 +31,12 @@ public class Tasks {
             name = "project_id",
             nullable = false
     )
-    private Projects projects;
+    private Project projects;
 
     @ManyToOne
     @JoinColumn(
             name = "user_id",
             nullable = false
     )
-    private Users user;
+    private User user;
 }

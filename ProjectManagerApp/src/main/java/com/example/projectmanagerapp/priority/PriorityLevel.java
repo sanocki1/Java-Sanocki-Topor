@@ -1,8 +1,8 @@
 package com.example.projectmanagerapp.priority;
 
-import com.example.projectmanagerapp.entity.Tasks;
+import com.example.projectmanagerapp.entity.Task;
 
 public interface PriorityLevel {
 
-    Tasks.TaskType getPriority();
+    Task.TaskType getPriority();
 }
