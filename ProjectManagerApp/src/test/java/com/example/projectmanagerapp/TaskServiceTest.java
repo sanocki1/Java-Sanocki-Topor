@@ -10,8 +10,9 @@ import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class TaskServiceTest {
@@ -50,20 +51,21 @@ class TaskServiceTest {
 
         when(taskRepository.findById(1L)).thenReturn(java.util.Optional.of(t));
 
-        Task result = taskService.getTaskById(1L);
+        Optional<Task> result = taskService.getTaskById(1L);
 
-        assertEquals("T1", result.getTitle());
+        assertTrue(result.isPresent());
+        assertEquals("T1", result.get().getTitle());
         verify(taskRepository, times(1)).findById(1L);
     }
 
     @Test
-    @DisplayName("Should throw when task not found by id")
-    void shouldThrowWhenGetTaskByIdNotFound() {
+    @DisplayName("Should return empty when task not found by id")
+    void shouldReturnEmptyWhenGetTaskByIdNotFound() {
         when(taskRepository.findById(2L)).thenReturn(java.util.Optional.empty());
 
-        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.server.ResponseStatusException.class,
-                () -> taskService.getTaskById(2L));
+        Optional<Task> result = taskService.getTaskById(2L);
 
+        assertTrue(result.isEmpty());
         verify(taskRepository, times(1)).findById(2L);
     }
 
@@ -99,18 +101,19 @@ class TaskServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw when updating non-existing task")
-    void shouldThrowWhenUpdateTaskNotFound() {
+    @DisplayName("Should return null when updating non-existing task")
+    void shouldReturnNullWhenUpdateTaskNotFound() {
         Task t = new Task();
         t.setId(2L);
         t.setTitle("DoesNotExist");
 
         when(taskRepository.existsById(2L)).thenReturn(false);
 
-        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.server.ResponseStatusException.class,
-                () -> taskService.updateTask(t));
+        Task updated = taskService.updateTask(t);
 
+        assertNull(updated);
         verify(taskRepository, times(1)).existsById(2L);
+        verify(taskRepository, never()).save(t);
     }
 
     @Test
@@ -118,20 +121,22 @@ class TaskServiceTest {
     void shouldDeleteTask() {
         when(taskRepository.existsById(1L)).thenReturn(true);
 
-        taskService.deleteTask(1L);
+        boolean deleted = taskService.deleteTask(1L);
 
+        assertTrue(deleted);
         verify(taskRepository, times(1)).existsById(1L);
         verify(taskRepository, times(1)).deleteById(1L);
     }
 
     @Test
-    @DisplayName("Should throw when deleting non-existing task")
-    void shouldThrowWhenDeleteTaskNotFound() {
+    @DisplayName("Should return false when deleting non-existing task")
+    void shouldReturnFalseWhenDeleteTaskNotFound() {
         when(taskRepository.existsById(2L)).thenReturn(false);
 
-        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.server.ResponseStatusException.class,
-                () -> taskService.deleteTask(2L));
+        boolean deleted = taskService.deleteTask(2L);
 
+        assertFalse(deleted);
         verify(taskRepository, times(1)).existsById(2L);
+        verify(taskRepository, never()).deleteById(2L);
     }
 }

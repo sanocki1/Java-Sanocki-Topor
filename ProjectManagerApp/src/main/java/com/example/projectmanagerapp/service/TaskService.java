@@ -2,11 +2,10 @@ package com.example.projectmanagerapp.service;
 
 import com.example.projectmanagerapp.entity.Task;
 import com.example.projectmanagerapp.repository.TaskRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TaskService {
@@ -20,9 +19,8 @@ public class TaskService {
         return taskRepository.findAll();
     }
 
-    public Task getTaskById(Long id) {
-        return taskRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
+    public Optional<Task> getTaskById(Long id) {
+        return taskRepository.findById(id);
     }
 
     public Task createTask(Task task) {
@@ -31,15 +29,16 @@ public class TaskService {
 
     public Task updateTask(Task task) {
         if (!taskRepository.existsById(task.getId())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found");
+            return null;
         }
         return taskRepository.save(task);
     }
 
-    public void deleteTask(Long id) {
+    public boolean deleteTask(Long id) {
         if (!taskRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found");
+            return false;
         }
         taskRepository.deleteById(id);
+        return true;
     }
 }

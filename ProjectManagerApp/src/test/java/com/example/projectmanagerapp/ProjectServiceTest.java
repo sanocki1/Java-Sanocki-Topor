@@ -10,8 +10,9 @@ import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ProjectServiceTest {
@@ -50,20 +51,21 @@ class ProjectServiceTest {
 
         when(projectRepository.findById(1L)).thenReturn(java.util.Optional.of(p));
 
-        Project result = projectService.getProjectById(1L);
+        Optional<Project> result = projectService.getProjectById(1L);
 
-        assertEquals("P1", result.getName());
+        assertTrue(result.isPresent());
+        assertEquals("P1", result.get().getName());
         verify(projectRepository, times(1)).findById(1L);
     }
 
     @Test
-    @DisplayName("Should throw when project not found by id")
-    void shouldThrowWhenGetProjectByIdNotFound() {
+    @DisplayName("Should return empty when project not found by id")
+    void shouldReturnEmptyWhenGetProjectByIdNotFound() {
         when(projectRepository.findById(2L)).thenReturn(java.util.Optional.empty());
 
-        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.server.ResponseStatusException.class,
-                () -> projectService.getProjectById(2L));
+        Optional<Project> result = projectService.getProjectById(2L);
 
+        assertTrue(result.isEmpty());
         verify(projectRepository, times(1)).findById(2L);
     }
 
@@ -99,18 +101,19 @@ class ProjectServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw when updating non-existing project")
-    void shouldThrowWhenUpdateProjectNotFound() {
+    @DisplayName("Should return null when updating non-existing project")
+    void shouldReturnNullWhenUpdateProjectNotFound() {
         Project p = new Project();
         p.setId(2L);
         p.setName("DoesNotExist");
 
         when(projectRepository.existsById(2L)).thenReturn(false);
 
-        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.server.ResponseStatusException.class,
-                () -> projectService.updateProject(p));
+        Project updated = projectService.updateProject(p);
 
+        assertNull(updated);
         verify(projectRepository, times(1)).existsById(2L);
+        verify(projectRepository, never()).save(p);
     }
 
     @Test
@@ -118,20 +121,22 @@ class ProjectServiceTest {
     void shouldDeleteProject() {
         when(projectRepository.existsById(1L)).thenReturn(true);
 
-        projectService.deleteProject(1L);
+        boolean deleted = projectService.deleteProject(1L);
 
+        assertTrue(deleted);
         verify(projectRepository, times(1)).existsById(1L);
         verify(projectRepository, times(1)).deleteById(1L);
     }
 
     @Test
-    @DisplayName("Should throw when deleting non-existing project")
-    void shouldThrowWhenDeleteProjectNotFound() {
+    @DisplayName("Should return false when deleting non-existing project")
+    void shouldReturnFalseWhenDeleteProjectNotFound() {
         when(projectRepository.existsById(2L)).thenReturn(false);
 
-        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.server.ResponseStatusException.class,
-                () -> projectService.deleteProject(2L));
+        boolean deleted = projectService.deleteProject(2L);
 
+        assertFalse(deleted);
         verify(projectRepository, times(1)).existsById(2L);
+        verify(projectRepository, never()).deleteById(2L);
     }
 }

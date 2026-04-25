@@ -10,8 +10,9 @@ import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class UserServiceTest {
@@ -50,20 +51,21 @@ class UserServiceTest {
 
         when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(u));
 
-        User result = userService.getUserById(1L);
+        Optional<User> result = userService.getUserById(1L);
 
-        assertEquals("U1", result.getUsername());
+        assertTrue(result.isPresent());
+        assertEquals("U1", result.get().getUsername());
         verify(userRepository, times(1)).findById(1L);
     }
 
     @Test
-    @DisplayName("Should throw when user not found by id")
-    void shouldThrowWhenGetUserByIdNotFound() {
+    @DisplayName("Should return empty when user not found by id")
+    void shouldReturnEmptyWhenGetUserByIdNotFound() {
         when(userRepository.findById(2L)).thenReturn(java.util.Optional.empty());
 
-        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.server.ResponseStatusException.class,
-                () -> userService.getUserById(2L));
+        Optional<User> result = userService.getUserById(2L);
 
+        assertTrue(result.isEmpty());
         verify(userRepository, times(1)).findById(2L);
     }
 
@@ -99,18 +101,19 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw when updating non-existing user")
-    void shouldThrowWhenUpdateUserNotFound() {
+    @DisplayName("Should return null when updating non-existing user")
+    void shouldReturnNullWhenUpdateUserNotFound() {
         User u = new User();
         u.setId(2L);
         u.setUsername("DoesNotExist");
 
         when(userRepository.existsById(2L)).thenReturn(false);
 
-        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.server.ResponseStatusException.class,
-                () -> userService.updateUser(u));
+        User updated = userService.updateUser(u);
 
+        assertNull(updated);
         verify(userRepository, times(1)).existsById(2L);
+        verify(userRepository, never()).save(u);
     }
 
     @Test
@@ -118,20 +121,22 @@ class UserServiceTest {
     void shouldDeleteUser() {
         when(userRepository.existsById(1L)).thenReturn(true);
 
-        userService.deleteUser(1L);
+        boolean deleted = userService.deleteUser(1L);
 
+        assertTrue(deleted);
         verify(userRepository, times(1)).existsById(1L);
         verify(userRepository, times(1)).deleteById(1L);
     }
 
     @Test
-    @DisplayName("Should throw when deleting non-existing user")
-    void shouldThrowWhenDeleteUserNotFound() {
+    @DisplayName("Should return false when deleting non-existing user")
+    void shouldReturnFalseWhenDeleteUserNotFound() {
         when(userRepository.existsById(2L)).thenReturn(false);
 
-        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.server.ResponseStatusException.class,
-                () -> userService.deleteUser(2L));
+        boolean deleted = userService.deleteUser(2L);
 
+        assertFalse(deleted);
         verify(userRepository, times(1)).existsById(2L);
+        verify(userRepository, never()).deleteById(2L);
     }
 }
