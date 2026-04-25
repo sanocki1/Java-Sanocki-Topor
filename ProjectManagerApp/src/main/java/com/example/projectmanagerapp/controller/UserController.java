@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -37,12 +38,11 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
     })
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        try {
-            userService.getUserById(id);
-            return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
-        } catch (Exception e) {
+        Optional<User> user = userService.getUserById(id);
+        if (user.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(user.get(), HttpStatus.OK);
     }
 
     @PostMapping("/create")
@@ -60,12 +60,11 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     public ResponseEntity<User> updateUser(@RequestBody User user) {
-        try {
-            User updatedUser = userService.updateUser(user);
-            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-        } catch (Exception e) {
+        User updatedUser = userService.updateUser(user);
+        if (updatedUser == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{id}")
@@ -75,11 +74,9 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        try {
-            userService.deleteUser(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
+        if (!userService.deleteUser(id)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

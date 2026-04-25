@@ -2,11 +2,10 @@ package com.example.projectmanagerapp.service;
 
 import com.example.projectmanagerapp.entity.Project;
 import com.example.projectmanagerapp.repository.ProjectRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProjectService {
@@ -20,9 +19,8 @@ public class ProjectService {
         return projectRepository.findAll();
     }
 
-    public Project getProjectById(Long id) {
-        return projectRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+    public Optional<Project> getProjectById(Long id) {
+        return projectRepository.findById(id);
     }
 
     public Project createProject(Project project) {
@@ -31,15 +29,16 @@ public class ProjectService {
 
     public Project updateProject(Project project) {
         if (!projectRepository.existsById(project.getId())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found");
+            return null;
         }
         return projectRepository.save(project);
     }
 
-    public void deleteProject(Long id) {
+    public boolean deleteProject(Long id) {
         if (!projectRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found");
+            return false;
         }
         projectRepository.deleteById(id);
+        return true;
     }
 }

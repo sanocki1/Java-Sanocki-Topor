@@ -1,7 +1,6 @@
 package com.example.projectmanagerapp.controller;
 
 import com.example.projectmanagerapp.entity.Project;
-import com.example.projectmanagerapp.entity.Project;
 import com.example.projectmanagerapp.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -38,12 +38,11 @@ public class ProjectController {
             @ApiResponse(responseCode = "404", description = "Project not found", content = @Content)
     })
     public ResponseEntity<Project> getProjectById(@PathVariable Long id) {
-        try {
-            projectService.getProjectById(id);
-            return new ResponseEntity<>(projectService.getProjectById(id), HttpStatus.OK);
-        } catch (Exception e) {
+        Optional<Project> project = projectService.getProjectById(id);
+        if (project.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(project.get(), HttpStatus.OK);
     }
 
     @PostMapping("/create")
@@ -63,12 +62,11 @@ public class ProjectController {
             @ApiResponse(responseCode = "404", description = "Project not found")
     })
     public ResponseEntity<Project> updateProject(@RequestBody Project project) {
-        try {
-            Project updatedProject = projectService.updateProject(project);
-            return new ResponseEntity<>(updatedProject, HttpStatus.OK);
-        } catch (Exception e) {
+        Project updatedProject = projectService.updateProject(project);
+        if (updatedProject == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(updatedProject, HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{id}")
@@ -78,11 +76,9 @@ public class ProjectController {
             @ApiResponse(responseCode = "404", description = "Project not found")
     })
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
-        try {
-            projectService.deleteProject(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
+        if (!projectService.deleteProject(id)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
