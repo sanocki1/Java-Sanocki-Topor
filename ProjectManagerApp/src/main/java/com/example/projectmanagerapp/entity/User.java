@@ -1,5 +1,7 @@
 package com.example.projectmanagerapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +9,7 @@ import lombok.Setter;
 
 import java.util.Set;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Entity
 @Table(name = "users")
 @Getter
@@ -21,5 +24,6 @@ public class User {
     private String username;
 
     @ManyToMany(mappedBy = "users")
+//    @JsonBackReference
     private Set<Project> projects;
 }

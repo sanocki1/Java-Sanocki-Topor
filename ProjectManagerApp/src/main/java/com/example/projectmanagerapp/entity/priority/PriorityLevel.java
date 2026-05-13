@@ -1,4 +1,4 @@
-package com.example.projectmanagerapp.priority;
+package com.example.projectmanagerapp.entity.priority;
 
 import com.example.projectmanagerapp.entity.Task;
 
