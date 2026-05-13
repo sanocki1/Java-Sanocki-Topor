@@ -27,8 +27,12 @@ public class ProjectController {
 
     @GetMapping("/all")
     @Operation(summary = "Retrieve all projects", description = "Returns a list of all projects from a database")
-    public List<Project> getProjects() {
-        return projectService.getAllProjects();
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "404", description = "No projects found", content = @Content)
+    })
+    public ResponseEntity<List<Project>> getProjects() {
+        return new ResponseEntity<>(projectService.getAllProjects(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -80,5 +84,18 @@ public class ProjectController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping("/{projectId}/users/{userId}")
+    @Operation(summary = "Assign user to project", description = "Assigns a user to a project in the database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User assigned to project successfully"),
+            @ApiResponse(responseCode = "404", description = "Project or user not found")
+    })
+    public ResponseEntity<Void> assignUserToProject(@PathVariable Long projectId, @PathVariable Long userId) {
+        if (!projectService.assignUserToProject(projectId, userId)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
