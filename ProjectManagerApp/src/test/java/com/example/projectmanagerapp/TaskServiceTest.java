@@ -49,7 +49,7 @@ class TaskServiceTest {
         t.setId(1L);
         t.setTitle("T1");
 
-        when(taskRepository.findById(1L)).thenReturn(java.util.Optional.of(t));
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(t));
 
         Optional<Task> result = taskService.getTaskById(1L);
 
@@ -61,7 +61,7 @@ class TaskServiceTest {
     @Test
     @DisplayName("Should return empty when task not found by id")
     void shouldReturnEmptyWhenGetTaskByIdNotFound() {
-        when(taskRepository.findById(2L)).thenReturn(java.util.Optional.empty());
+        when(taskRepository.findById(2L)).thenReturn(Optional.empty());
 
         Optional<Task> result = taskService.getTaskById(2L);
 
@@ -93,25 +93,26 @@ class TaskServiceTest {
         when(taskRepository.existsById(1L)).thenReturn(true);
         when(taskRepository.save(t)).thenReturn(t);
 
-        Task updated = taskService.updateTask(t);
+        Optional<Task> updated = taskService.updateTask(t);
 
-        assertEquals("Updated", updated.getTitle());
+        assertTrue(updated.isPresent());
+        assertEquals("Updated", updated.get().getTitle());
         verify(taskRepository, times(1)).existsById(1L);
         verify(taskRepository, times(1)).save(t);
     }
 
     @Test
-    @DisplayName("Should return null when updating non-existing task")
-    void shouldReturnNullWhenUpdateTaskNotFound() {
+    @DisplayName("Should return empty when updating non-existing task")
+    void shouldReturnEmptyWhenUpdateTaskNotFound() {
         Task t = new Task();
         t.setId(2L);
         t.setTitle("DoesNotExist");
 
         when(taskRepository.existsById(2L)).thenReturn(false);
 
-        Task updated = taskService.updateTask(t);
+        Optional<Task> updated = taskService.updateTask(t);
 
-        assertNull(updated);
+        assertTrue(updated.isEmpty());
         verify(taskRepository, times(1)).existsById(2L);
         verify(taskRepository, never()).save(t);
     }

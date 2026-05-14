@@ -60,11 +60,11 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     public ResponseEntity<User> updateUser(@RequestBody User user) {
-        User updatedUser = userService.updateUser(user);
-        if (updatedUser == null) {
+        Optional<User> updatedUser = userService.updateUser(user);
+        if (updatedUser.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        return new ResponseEntity<>(updatedUser.get(), HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{id}")

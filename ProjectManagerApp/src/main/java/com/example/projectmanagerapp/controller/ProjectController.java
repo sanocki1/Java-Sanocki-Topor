@@ -66,11 +66,11 @@ public class ProjectController {
             @ApiResponse(responseCode = "404", description = "Project not found")
     })
     public ResponseEntity<Project> updateProject(@RequestBody Project project) {
-        Project updatedProject = projectService.updateProject(project);
-        if (updatedProject == null) {
+        Optional<Project> updatedProject = projectService.updateProject(project);
+        if (updatedProject.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(updatedProject, HttpStatus.OK);
+        return new ResponseEntity<>(updatedProject.get(), HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{id}")

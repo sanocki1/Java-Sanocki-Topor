@@ -49,7 +49,7 @@ class UserServiceTest {
         u.setId(1L);
         u.setUsername("U1");
 
-        when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(u));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(u));
 
         Optional<User> result = userService.getUserById(1L);
 
@@ -61,7 +61,7 @@ class UserServiceTest {
     @Test
     @DisplayName("Should return empty when user not found by id")
     void shouldReturnEmptyWhenGetUserByIdNotFound() {
-        when(userRepository.findById(2L)).thenReturn(java.util.Optional.empty());
+        when(userRepository.findById(2L)).thenReturn(Optional.empty());
 
         Optional<User> result = userService.getUserById(2L);
 
@@ -93,25 +93,26 @@ class UserServiceTest {
         when(userRepository.existsById(1L)).thenReturn(true);
         when(userRepository.save(u)).thenReturn(u);
 
-        User updated = userService.updateUser(u);
+        Optional<User> updated = userService.updateUser(u);
 
-        assertEquals("UpdatedUser", updated.getUsername());
+        assertTrue(updated.isPresent());
+        assertEquals("UpdatedUser", updated.get().getUsername());
         verify(userRepository, times(1)).existsById(1L);
         verify(userRepository, times(1)).save(u);
     }
 
     @Test
-    @DisplayName("Should return null when updating non-existing user")
-    void shouldReturnNullWhenUpdateUserNotFound() {
+    @DisplayName("Should return empty when updating non-existing user")
+    void shouldReturnEmptyWhenUpdateUserNotFound() {
         User u = new User();
         u.setId(2L);
         u.setUsername("DoesNotExist");
 
         when(userRepository.existsById(2L)).thenReturn(false);
 
-        User updated = userService.updateUser(u);
+        Optional<User> updated = userService.updateUser(u);
 
-        assertNull(updated);
+        assertTrue(updated.isEmpty());
         verify(userRepository, times(1)).existsById(2L);
         verify(userRepository, never()).save(u);
     }
