@@ -1,6 +1,7 @@
 package com.example.projectmanagerapp;
 
 import com.example.projectmanagerapp.entity.Project;
+import com.example.projectmanagerapp.entity.User;
 import com.example.projectmanagerapp.repository.ProjectRepository;
 import com.example.projectmanagerapp.service.ProjectService;
 import com.example.projectmanagerapp.service.UserService;
@@ -33,9 +34,9 @@ class ProjectServiceTest {
     @DisplayName("Should return all projects")
     void shouldReturnAllProjects() {
         Project p1 = new Project();
-        p1.setName("Project1");
+        p1.setName("WebApplicationProject");
         Project p2 = new Project();
-        p2.setName("Project2");
+        p2.setName("MobileApplicationProject");
 
         when(projectRepository.findAll()).thenReturn(Arrays.asList(p1, p2));
 
@@ -50,14 +51,14 @@ class ProjectServiceTest {
     void shouldReturnProjectById() {
         Project p = new Project();
         p.setId(1L);
-        p.setName("P1");
+        p.setName("WebApplicationProject");
 
         when(projectRepository.findById(1L)).thenReturn(Optional.of(p));
 
         Optional<Project> result = projectService.getProjectById(1L);
 
         assertTrue(result.isPresent());
-        assertEquals("P1", result.get().getName());
+        assertEquals("WebApplicationProject", result.get().getName());
         verify(projectRepository, times(1)).findById(1L);
     }
 
@@ -76,13 +77,13 @@ class ProjectServiceTest {
     @DisplayName("Should create project")
     void shouldCreateProject() {
         Project p = new Project();
-        p.setName("New");
+        p.setName("NewProject");
 
         when(projectRepository.save(p)).thenReturn(p);
 
         Project created = projectService.createProject(p);
 
-        assertEquals("New", created.getName());
+        assertEquals("NewProject", created.getName());
         verify(projectRepository, times(1)).save(p);
     }
 
@@ -91,7 +92,7 @@ class ProjectServiceTest {
     void shouldUpdateProject() {
         Project p = new Project();
         p.setId(1L);
-        p.setName("Updated");
+        p.setName("UpdatedProject");
 
         when(projectRepository.existsById(1L)).thenReturn(true);
         when(projectRepository.save(p)).thenReturn(p);
@@ -99,7 +100,7 @@ class ProjectServiceTest {
         Optional<Project> updated = projectService.updateProject(p);
 
         assertTrue(updated.isPresent());
-        assertEquals("Updated", updated.get().getName());
+        assertEquals("UpdatedProject", updated.get().getName());
         verify(projectRepository, times(1)).existsById(1L);
         verify(projectRepository, times(1)).save(p);
     }
@@ -109,7 +110,7 @@ class ProjectServiceTest {
     void shouldReturnEmptyWhenUpdateProjectNotFound() {
         Project p = new Project();
         p.setId(2L);
-        p.setName("DoesNotExist");
+        p.setName("NonExistentProject");
 
         when(projectRepository.existsById(2L)).thenReturn(false);
 
@@ -142,5 +143,54 @@ class ProjectServiceTest {
         assertFalse(deleted);
         verify(projectRepository, times(1)).existsById(2L);
         verify(projectRepository, never()).deleteById(2L);
+    }
+
+    @Test
+    @DisplayName("Should assign user to project successfully")
+    void shouldAssignUserToProject() {
+        Project project = new Project();
+        project.setId(1L);
+        User user = new User();
+        user.setId(1L);
+
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(userService.getUserById(1L)).thenReturn(Optional.of(user));
+        when(projectRepository.save(project)).thenReturn(project);
+
+        boolean result = projectService.assignUserToProject(1L, 1L);
+
+        assertTrue(result);
+        assertTrue(project.getUsers().contains(user));
+        verify(projectRepository, times(1)).findById(1L);
+        verify(userService, times(1)).getUserById(1L);
+        verify(projectRepository, times(1)).save(project);
+    }
+
+    @Test
+    @DisplayName("Should return false when assigning user to non-existing project")
+    void shouldReturnFalseWhenAssignUserToNonExistingProject() {
+        when(projectRepository.findById(1L)).thenReturn(Optional.empty());
+        when(userService.getUserById(1L)).thenReturn(Optional.of(new User()));
+
+        boolean result = projectService.assignUserToProject(1L, 1L);
+
+        assertFalse(result);
+        verify(projectRepository, times(1)).findById(1L);
+        verify(userService, times(1)).getUserById(1L);
+        verify(projectRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should return false when assigning non-existing user to project")
+    void shouldReturnFalseWhenAssignNonExistingUserToProject() {
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(new Project()));
+        when(userService.getUserById(1L)).thenReturn(Optional.empty());
+
+        boolean result = projectService.assignUserToProject(1L, 1L);
+
+        assertFalse(result);
+        verify(projectRepository, times(1)).findById(1L);
+        verify(userService, times(1)).getUserById(1L);
+        verify(projectRepository, never()).save(any());
     }
 }

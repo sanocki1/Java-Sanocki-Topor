@@ -19,8 +19,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 @AutoConfigureMockMvc
 @Testcontainers
@@ -62,47 +65,125 @@ public class IntegrationTest {
     }
 
     @Test
+    @DisplayName("Should connect to PostgreSQL database")
     void shouldConnectToPostgres() {
         assertTrue(postgres.isCreated());
         assertTrue(postgres.isRunning());
     }
 
     @Test
+    @DisplayName("Should create a new project")
     void shouldCreateProject() throws Exception {
         mockMvc.perform(post("/api/projects/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "name": "test2000",
-                                  "description": "testowy opis2",
+                                  "name": "SampleProject",
+                                  "description": "A sample project for testing purposes",
                                   "users": []
                                 }
                                 """))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("test2000"))
-                .andExpect(jsonPath("$.description").value("testowy opis2"));
+                .andExpect(jsonPath("$.name").value("SampleProject"))
+                .andExpect(jsonPath("$.description").value("A sample project for testing purposes"));
     }
 
     @Test
+    @DisplayName("Should create a new user")
     void shouldCreateUser() throws Exception {
         mockMvc.perform(post("/api/users/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "username": "uzytkownik2000",
+                                  "username": "testUser",
                                   "projects": []
                                 }
                                 """))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.username").value("uzytkownik2000"));
+                .andExpect(jsonPath("$.username").value("testUser"));
     }
 
     @Test
+    @DisplayName("Should assign user to a project")
     void shouldAssignUserToAProject() throws Exception {
-        long projectId = createProject("testProject", "TestProjectDescription");
-        long userId = createUser("testUser");
+        long projectId = createProject("DevelopmentProject", "Project focused on software development");
+        long userId = createUser("assignUser");
         mockMvc.perform(post("/api/projects/{projectId}/users/{userId}", projectId, userId))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Should update an existing project")
+    void shouldUpdateProject() throws Exception {
+        long projectId = createProject("OldProjectName", "Old project description");
+        mockMvc.perform(put("/api/projects/update")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "id": %d,
+                                  "name": "UpdatedProjectName",
+                                  "description": "Updated project description"
+                                }
+                                """.formatted(projectId)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("UpdatedProjectName"))
+                .andExpect(jsonPath("$.description").value("Updated project description"));
+    }
+
+    @Test
+    @DisplayName("Should delete an existing project")
+    void shouldDeleteProject() throws Exception {
+        long projectId = createProject("ProjectToDelete", "Project for deletion testing");
+        mockMvc.perform(delete("/api/projects/delete/{id}", projectId))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("Should create a new task")
+    void shouldCreateTask() throws Exception {
+        long projectId = createProject("TaskManagementProject", "Project for managing tasks");
+        long userId = createUser("aliceSmith");
+        mockMvc.perform(post("/api/tasks/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "title": "Implement user authentication",
+                                  "task_type": "HIGH_PRIORITY",
+                                  "projects": {"id": %d},
+                                  "user": {"id": %d}
+                                }
+                                """.formatted(projectId, userId)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.title").value("Implement user authentication"));
+    }
+
+    @Test
+    @DisplayName("Should retrieve all tasks")
+    void shouldGetAllTasks() throws Exception {
+        mockMvc.perform(get("/api/tasks/all"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    @DisplayName("Should return not found for non-existing project")
+    void shouldReturnNotFoundForNonExistingProject() throws Exception {
+        mockMvc.perform(get("/api/projects/{id}", 999L))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Should return not found for non-existing user")
+    void shouldReturnNotFoundForNonExistingUser() throws Exception {
+        mockMvc.perform(get("/api/users/{id}", 999L))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Should return not found for non-existing task")
+    void shouldReturnNotFoundForNonExistingTask() throws Exception {
+        mockMvc.perform(get("/api/tasks/{id}", 999L))
+                .andExpect(status().isNotFound());
     }
 
     private long createProject(String name, String description) throws Exception {
