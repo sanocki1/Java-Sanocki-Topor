@@ -61,11 +61,11 @@ public class TaskController {
             @ApiResponse(responseCode = "404", description = "Task not found")
     })
     public ResponseEntity<Task> updateTask(@RequestBody Task task) {
-        Task updatedTask = taskService.updateTask(task);
-        if (updatedTask == null) {
+        Optional<Task> updatedTask = taskService.updateTask(task);
+        if (updatedTask.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(updatedTask, HttpStatus.OK);
+        return new ResponseEntity<>(updatedTask.get(), HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{id}")

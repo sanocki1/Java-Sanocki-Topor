@@ -27,11 +27,11 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-    public Task updateTask(Task task) {
+    public Optional<Task> updateTask(Task task) {
         if (!taskRepository.existsById(task.getId())) {
-            return null;
+            return Optional.empty();
         }
-        return taskRepository.save(task);
+        return Optional.of(taskRepository.save(task));
     }
 
     public boolean deleteTask(Long id) {

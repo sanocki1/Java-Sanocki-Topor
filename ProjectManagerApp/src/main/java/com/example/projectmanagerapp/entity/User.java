@@ -24,6 +24,5 @@ public class User {
     private String username;
 
     @ManyToMany(mappedBy = "users")
-//    @JsonBackReference
     private Set<Project> projects;
 }

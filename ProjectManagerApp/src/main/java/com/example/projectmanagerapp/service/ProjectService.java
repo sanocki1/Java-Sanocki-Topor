@@ -30,11 +30,11 @@ public class ProjectService {
         return projectRepository.save(project);
     }
 
-    public Project updateProject(Project project) {
+    public Optional<Project> updateProject(Project project) {
         if (!projectRepository.existsById(project.getId())) {
-            return null;
+            return Optional.empty();
         }
-        return projectRepository.save(project);
+        return Optional.of(projectRepository.save(project));
     }
 
     public boolean deleteProject(Long id) {
@@ -46,18 +46,13 @@ public class ProjectService {
     }
 
     public boolean assignUserToProject(Long projectId, Long userId) {
-        System.out.println("huj1");
         Optional<Project> project = projectRepository.findById(projectId);
         Optional<User> user = userService.getUserById(userId);
-        System.out.println("huj2");
         if (project.isEmpty() || user.isEmpty()) {
             return false;
         }
-        System.out.println("huj3");
         project.get().getUsers().add(user.get());
-        System.out.println("huj4");
         projectRepository.save(project.get());
-        System.out.println("huj5");
         return true;
     }
 }

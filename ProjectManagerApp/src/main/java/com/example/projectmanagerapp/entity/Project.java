@@ -27,6 +27,5 @@ public class Project {
     @JoinTable(name = "projects_users",
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
-//    @JsonManagedReference
     private Set<User> users;
 }

@@ -27,11 +27,11 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User updateUser(User user) {
+    public Optional<User> updateUser(User user) {
         if (!userRepository.existsById(user.getId())) {
-            return null;
+            return Optional.empty();
         }
-        return userRepository.save(user);
+        return Optional.of(userRepository.save(user));
     }
 
     public boolean deleteUser(Long id) {

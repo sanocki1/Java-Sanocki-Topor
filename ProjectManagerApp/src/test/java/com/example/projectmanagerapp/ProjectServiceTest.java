@@ -52,7 +52,7 @@ class ProjectServiceTest {
         p.setId(1L);
         p.setName("P1");
 
-        when(projectRepository.findById(1L)).thenReturn(java.util.Optional.of(p));
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(p));
 
         Optional<Project> result = projectService.getProjectById(1L);
 
@@ -64,7 +64,7 @@ class ProjectServiceTest {
     @Test
     @DisplayName("Should return empty when project not found by id")
     void shouldReturnEmptyWhenGetProjectByIdNotFound() {
-        when(projectRepository.findById(2L)).thenReturn(java.util.Optional.empty());
+        when(projectRepository.findById(2L)).thenReturn(Optional.empty());
 
         Optional<Project> result = projectService.getProjectById(2L);
 
@@ -96,25 +96,26 @@ class ProjectServiceTest {
         when(projectRepository.existsById(1L)).thenReturn(true);
         when(projectRepository.save(p)).thenReturn(p);
 
-        Project updated = projectService.updateProject(p);
+        Optional<Project> updated = projectService.updateProject(p);
 
-        assertEquals("Updated", updated.getName());
+        assertTrue(updated.isPresent());
+        assertEquals("Updated", updated.get().getName());
         verify(projectRepository, times(1)).existsById(1L);
         verify(projectRepository, times(1)).save(p);
     }
 
     @Test
-    @DisplayName("Should return null when updating non-existing project")
-    void shouldReturnNullWhenUpdateProjectNotFound() {
+    @DisplayName("Should return empty when updating non-existing project")
+    void shouldReturnEmptyWhenUpdateProjectNotFound() {
         Project p = new Project();
         p.setId(2L);
         p.setName("DoesNotExist");
 
         when(projectRepository.existsById(2L)).thenReturn(false);
 
-        Project updated = projectService.updateProject(p);
+        Optional<Project> updated = projectService.updateProject(p);
 
-        assertNull(updated);
+        assertTrue(updated.isEmpty());
         verify(projectRepository, times(1)).existsById(2L);
         verify(projectRepository, never()).save(p);
     }
