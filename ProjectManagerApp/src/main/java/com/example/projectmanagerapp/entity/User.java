@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -24,5 +25,5 @@ public class User {
     private String username;
 
     @ManyToMany(mappedBy = "users")
-    private Set<Project> projects;
+    private Set<Project> projects = new HashSet<>();
 }

@@ -30,9 +30,9 @@ class UserServiceTest {
     @DisplayName("Should return all users")
     void shouldReturnAllUsers() {
         User user1 = new User();
-        user1.setUsername("TestUser1");
+        user1.setUsername("Alice");
         User user2 = new User();
-        user2.setUsername("TestUser2");
+        user2.setUsername("Bob");
 
         when(userRepository.findAll()).thenReturn(Arrays.asList(user1, user2));
 
@@ -47,14 +47,14 @@ class UserServiceTest {
     void shouldReturnUserById() {
         User u = new User();
         u.setId(1L);
-        u.setUsername("U1");
+        u.setUsername("Alice");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(u));
 
         Optional<User> result = userService.getUserById(1L);
 
         assertTrue(result.isPresent());
-        assertEquals("U1", result.get().getUsername());
+        assertEquals("Alice", result.get().getUsername());
         verify(userRepository, times(1)).findById(1L);
     }
 
@@ -73,13 +73,13 @@ class UserServiceTest {
     @DisplayName("Should create user")
     void shouldCreateUser() {
         User u = new User();
-        u.setUsername("NewUser");
+        u.setUsername("Charlie");
 
         when(userRepository.save(u)).thenReturn(u);
 
         User created = userService.createUser(u);
 
-        assertEquals("NewUser", created.getUsername());
+        assertEquals("Charlie", created.getUsername());
         verify(userRepository, times(1)).save(u);
     }
 
@@ -88,7 +88,7 @@ class UserServiceTest {
     void shouldUpdateUser() {
         User u = new User();
         u.setId(1L);
-        u.setUsername("UpdatedUser");
+        u.setUsername("UpdatedAlice");
 
         when(userRepository.existsById(1L)).thenReturn(true);
         when(userRepository.save(u)).thenReturn(u);
@@ -96,7 +96,7 @@ class UserServiceTest {
         Optional<User> updated = userService.updateUser(u);
 
         assertTrue(updated.isPresent());
-        assertEquals("UpdatedUser", updated.get().getUsername());
+        assertEquals("UpdatedAlice", updated.get().getUsername());
         verify(userRepository, times(1)).existsById(1L);
         verify(userRepository, times(1)).save(u);
     }
@@ -106,7 +106,7 @@ class UserServiceTest {
     void shouldReturnEmptyWhenUpdateUserNotFound() {
         User u = new User();
         u.setId(2L);
-        u.setUsername("DoesNotExist");
+        u.setUsername("NonExistentUser");
 
         when(userRepository.existsById(2L)).thenReturn(false);
 

@@ -30,9 +30,9 @@ class TaskServiceTest {
     @DisplayName("Should return all tasks")
     void shouldReturnAllTasks() {
         Task t1 = new Task();
-        t1.setTitle("Task1");
+        t1.setTitle("ImplementLogin");
         Task t2 = new Task();
-        t2.setTitle("Task2");
+        t2.setTitle("FixBug");
 
         when(taskRepository.findAll()).thenReturn(Arrays.asList(t1, t2));
 
@@ -47,14 +47,14 @@ class TaskServiceTest {
     void shouldReturnTaskById() {
         Task t = new Task();
         t.setId(1L);
-        t.setTitle("T1");
+        t.setTitle("ImplementLogin");
 
         when(taskRepository.findById(1L)).thenReturn(Optional.of(t));
 
         Optional<Task> result = taskService.getTaskById(1L);
 
         assertTrue(result.isPresent());
-        assertEquals("T1", result.get().getTitle());
+        assertEquals("ImplementLogin", result.get().getTitle());
         verify(taskRepository, times(1)).findById(1L);
     }
 
@@ -73,13 +73,13 @@ class TaskServiceTest {
     @DisplayName("Should create task")
     void shouldCreateTask() {
         Task t = new Task();
-        t.setTitle("New");
+        t.setTitle("NewTask");
 
         when(taskRepository.save(t)).thenReturn(t);
 
         Task created = taskService.createTask(t);
 
-        assertEquals("New", created.getTitle());
+        assertEquals("NewTask", created.getTitle());
         verify(taskRepository, times(1)).save(t);
     }
 
@@ -88,7 +88,7 @@ class TaskServiceTest {
     void shouldUpdateTask() {
         Task t = new Task();
         t.setId(1L);
-        t.setTitle("Updated");
+        t.setTitle("UpdatedTask");
 
         when(taskRepository.existsById(1L)).thenReturn(true);
         when(taskRepository.save(t)).thenReturn(t);
@@ -96,7 +96,7 @@ class TaskServiceTest {
         Optional<Task> updated = taskService.updateTask(t);
 
         assertTrue(updated.isPresent());
-        assertEquals("Updated", updated.get().getTitle());
+        assertEquals("UpdatedTask", updated.get().getTitle());
         verify(taskRepository, times(1)).existsById(1L);
         verify(taskRepository, times(1)).save(t);
     }
@@ -106,7 +106,7 @@ class TaskServiceTest {
     void shouldReturnEmptyWhenUpdateTaskNotFound() {
         Task t = new Task();
         t.setId(2L);
-        t.setTitle("DoesNotExist");
+        t.setTitle("NonExistentTask");
 
         when(taskRepository.existsById(2L)).thenReturn(false);
 
